@@ -9,7 +9,8 @@ const connectToDb = async () => {
     try {
         const connectionInstance = await monogoose.connect(process.env.monogodb_url + DB_NAME);
         console.log("connected to db");
-        console.log("connection instance", connectionInstance.connection.host, connectionInstance.connection.port, connectionInstance.connection .name);
+        console.log("connection instance", connectionInstance.connection.host,
+        connectionInstance.connection.port, connectionInstance.connection .name);
 
     }
     catch (error) {
