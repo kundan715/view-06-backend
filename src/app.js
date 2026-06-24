@@ -23,4 +23,30 @@ app.use(express.urlencoded({
 
 app.use(express.static("public"));
 app.use(cookieParser());
-export default app;
+
+//routes import 
+import {userRouter} from "./routes/userRouter.js"
+
+
+//routes delclaration
+
+app.use("/api/v1/user",userRouter);
+//this is starting route :localhost:800/api/v1/user -then specifict route will will be
+//handel by userRouter like : /register or /login  or which defined in userRouter
+
+export  {app};
+
+
+
+
+
+
+
+
+
+// app.js → forwards request
+// routes → selects controller
+// controller → handles logic
+// model → communicates with database
+// database → stores/retrieves data
+// response → sent back to client
