@@ -28,3 +28,5 @@ const cloudnary_file_upload =  async function(localFilePath){
         fs.unlinkSync(localFilePath);
     }
 }
+
+export {cloudnary_file_upload}
