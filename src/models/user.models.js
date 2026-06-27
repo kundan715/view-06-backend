@@ -57,7 +57,9 @@ const userSchema= new Schema(
 //pre is middle ware (require a next statement)which is use to perfrom a task before some act 
 // here we want pasword to be encrypt before save so..
 userSchema.pre("save", async function(next){
+    //if paswrod is not modified by this save then just call next function 
     if(!this.isModified("password"))next();
+    // if paswrod is bieing saved then first hash it then call save fuction 
     this.password= bcrypt.hash(this.password,10);
     next();
 });

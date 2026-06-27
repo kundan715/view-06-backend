@@ -272,9 +272,171 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
     }
 })
 
+
+
+//update password
+
+const changePassword= asyncHandler(async(req,res)=>{
+
+    const {oldPassword, newPassword}=req.body;
+
+    //find user by id
+    //middleware who checks jwtvalidation will add user to req
+
+    const user= User.findById(req.user._id);
+
+    // now validata old paswwrod is right ornot 
+
+    const isPasswordCorrect= user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect){
+        throw new ApiError(401,"incorrect password")
+    }
+
+    
+
+    user.password=newPassword
+    //valid befreo save -> no need to check othere entries are filled or not 
+    //as before save it check (should be given values which have required val as true)
+    user.save({validateBeforeSave: false});
+
+    //send res
+
+    res.status(200)
+    .json(
+        new ApiResponse(200,{},
+            "password is upoldated successfully"
+        )
+    )
+
+})
+
+const getUserDetails= asyncHandler(async(req,res)=>{
+    //before it jwtVerifcation run it adds user ele in req
+    return res.status(200)
+    .json(
+        new ApiResponse(200,req.user,"data is sent successfully")
+    )
+})
+
+
+const updateAccountDetails= asyncHandler(async(req,res)=>{
+
+    //uplade full and email
+    const {fullName, email}=req.body;
+    if(!fullName, !email){
+        throw new ApiError (401,"required both fullname and email")
+    }
+
+    //as we run jwtverify middleware to it add user
+
+    const user = User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                fullName,
+                email
+            }
+        },
+        {new:true}
+        
+    ).select("-password")
+
+    return res.status(200)
+    .json(
+        new ApiResponse(200,user,"details updated succesfully")
+    )
+
+})
+
+const  updateUserAvatar= asyncHandler(async(req,res)=>{
+
+
+    //jwtvalidation middleware
+    //multer middleware to save files 
+    // then uploade them on cloude and get link
+    // save that link to the db
+
+    const localFilePath  = req.file?.path;
+
+    if(!localFilePath){
+        throw new ApiError(401 ,"avatar file is missing")
+    }
+
+    //upload 
+
+    const avatar = await cloudnary_file_upload(localFilePath)
+
+    if(!avatar.url){
+        throw new ApiError(400, "error while uploading avatar")
+    }
+    //update the url 
+
+    const user =await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set :{
+                avatar: avatar.url
+            }
+        },
+        {
+            new:true
+        }
+    )
+
+    if(!user){
+        throw new ApiError(400, "error while uploading the link of avatar in db")
+    }
+
+    res.status(200)
+    .json(
+        new ApiResponse(200,user,"avatar is updated successfully")
+    )
+
+})
+const  updateCoverImage= asyncHandler(async(req,res)=>{
+
+    //jwtvalidation middleware
+    //multer middleware to save files 
+    // then uploade them on cloude and get link
+    // save that link to the db
+
+    const localFilePath  = req.file?.path;
+
+    if(!localFilePath){
+        throw new ApiError(401 ,"coverImage file is missing")
+    }
+
+    //upload 
+
+    const coveImage = await cloudnary_file_upload(localFilePath)
+
+    if(!coverImage.url){
+        throw new ApiError(400, "error while uploading coverImage")
+    }
+    //update the url 
+
+    await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set :{
+                coverImage: coverImage.url
+            }
+        },
+        {
+            new:true
+        }
+    )
+
+})
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changePassword,
+    getUserDetails,
+    updateAccountDetails,
+    updateCoverImage,
+    updateUserAvatar
 }
